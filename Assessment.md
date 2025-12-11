@@ -2,9 +2,8 @@
 ### Project: The Credit Enforcement Engine
 
 **Role:** Senior Backend Developer  
-**Time Limit:** 60 - 90 Minutes  
 **Tech Stack:** C# (.NET 9), ASP.NET Core, xUnit  
-**Focus:** Concurrency, Performance Optimization, Middleware Architecture  
+**Focus:** Concurrency, Performance Optimization, Middleware Architecture, System Design
 
 ---
 
@@ -36,9 +35,9 @@ You are a Senior Backend Engineer at Riva. We are pivoting to a "Pre-Paid Credit
 
 ### D. Testing (Critical)
 * You must implement and verify your logic with **Unit Tests**.
-* **Test Case 1:** Implement `TryDeductCredit_ReturnsFalse_WhenUserHasNoCredits` - Verify that the service returns `false` when a user has 0 credits.
-* **Test Case 2 (The Stress Test):** Implement `ConcurrentDeductions_WithOneCredit_OnlyOneSucceeds` - Verify that 10 concurrent requests for a user with 1 credit results in exactly **1 Success** and **9 Failures**.
-* The test structure is provided in `RivaAssessment.Tests/CreditServiceTests.cs`, but you must complete the implementations and ensure all tests pass.
+* **Test Case 1:** Write a test `TryDeductCredit_ReturnsFalse_WhenUserHasNoCredits` - Verify that the service returns `false` when a user has 0 credits.
+* **Test Case 2 (The Stress Test):** Write a test `ConcurrentDeductions_WithOneCredit_OnlyOneSucceeds` - Verify that 10 concurrent requests for a user with 1 credit results in exactly **1 Success** and **9 Failures**.
+* Test class structures are provided in `RivaAssessment.Tests/`, but you must write all test methods from scratch.
 
 ---
 
@@ -50,8 +49,8 @@ The solution is already set up with:
 - **RivaAssessment.Tests**: Test project with xUnit (.NET 9)
 - **LegacyBillingRepository**: Provided repository that simulates slow database (100ms latency)
 - **CreditService**: Service class that needs implementation
-- **CreditEnforcementMiddleware**: Middleware class that needs completion
-- **Test files**: Test structure provided, needs completion
+- **CreditEnforcementMiddleware**: Middleware class that needs implementation
+- **Test files**: Test class structures provided, test methods need to be written from scratch
 
 ### Initial Setup
 See [SETUP.md](SETUP.md) for detailed setup instructions. Quick start:
@@ -63,7 +62,7 @@ dotnet restore
 # Build the solution
 dotnet build
 
-# Run tests (some will fail initially - this is expected)
+# Run tests (no tests will run initially - you need to write them)
 dotnet test
 ```
 
@@ -79,35 +78,113 @@ dotnet test
   - Return `true` if credit deducted, `false` if insufficient credits
 
 ### CreditEnforcementMiddleware (`RivaAssessment/Middleware/CreditEnforcementMiddleware.cs`)
-- **Status:** Partially implemented
-- **Task:** Complete the middleware implementation
+- **Status:** Needs implementation
+- **Task:** Implement the middleware from scratch
 - **Requirements:**
+  - Extract user ID from `X-User-Id` header
   - Call `CreditService.TryDeductCreditAsync()`
   - Return `402 Payment Required` if no credits
   - Allow request to proceed if credit deducted
   - Register in `Program.cs`
 
-### Tests (`RivaAssessment.Tests/CreditServiceTests.cs`)
-- **Status:** Test structure provided, needs completion
-- **Task:** Complete test implementations
+### Tests (`RivaAssessment.Tests/`)
+- **Status:** Test class structures provided, test methods need to be written
+- **Task:** Write comprehensive unit tests from scratch
 - **Requirements:**
-  - Complete `TryDeductCredit_ReturnsFalse_WhenUserHasNoCredits` test
-  - Complete `ConcurrentDeductions_WithOneCredit_OnlyOneSucceeds` test
+  - Write `TryDeductCredit_ReturnsFalse_WhenUserHasNoCredits` test for CreditService
+  - Write `ConcurrentDeductions_WithOneCredit_OnlyOneSucceeds` test for CreditService
+  - Write tests for CreditEnforcementMiddleware (blocking users with no credits, allowing requests with credits, etc.)
   - Ensure all tests pass
+  - You are free to organize and structure tests as you see fit
 
-For detailed implementation guidance, see [ASSIGNMENT.md](ASSIGNMENT.md).
+---
 
-## 5. Success Criteria
+## 5. Interconnected System Components
+
+The following components are interconnected with the credit enforcement system and should be implemented as part of a complete solution:
+
+### A. Credit Refill System
+**TODO:** Implement a credit refill mechanism that allows users to add credits to their account.
+
+**Requirements:**
+- Create an endpoint or service method to add credits to a user's account
+- When credits are refilled, update the cache to reflect the new balance
+- Handle concurrent refill operations safely
+- Consider implementing a maximum credit limit
+- Ensure the refill operation is atomic and thread-safe
+
+**Integration Points:**
+- Must work with the existing `CreditService` caching mechanism
+- Should update the in-memory cache when credits are added
+- May need to invalidate or refresh cache entries
+
+**Implementation Notes:**
+- You are free to organize files and structure as you see fit
+- Consider how this integrates with the existing `CreditService` and `ICreditService`
+- Add appropriate tests for the refill functionality
+
+### B. Backend Transaction Audit System
+**TODO:** Implement a transaction audit system that logs all credit deductions and refills.
+
+**Requirements:**
+- Log every credit transaction (deduction, refill) with timestamp, user ID, amount, and result
+- Store audit records in a persistent store (database or file)
+- Provide an endpoint to query transaction history for a user
+- Ensure audit logging doesn't impact the 20ms latency requirement (use async/background processing)
+- Handle audit log failures gracefully (don't block credit operations)
+
+**Integration Points:**
+- Integrate with `CreditService` to log all deductions
+- Integrate with credit refill system to log all refills
+- Should be decoupled from the main credit flow to maintain performance
+
+**Implementation Notes:**
+- You are free to organize files and structure as you see fit
+- Consider separation of concerns (services, repositories, controllers)
+- Ensure audit logging is non-blocking and doesn't impact the 20ms latency requirement
+- Provide an endpoint or mechanism to query transaction history
+
+### C. Authentication Timeout
+**TODO:** Implement an authentication timeout mechanism that invalidates user sessions after a period of inactivity.
+
+**Requirements:**
+- Track user activity timestamps
+- Implement a configurable timeout period (e.g., 30 minutes)
+- When a user's session times out, require re-authentication
+- Integrate with the credit enforcement middleware to check session validity
+- Consider implementing a sliding expiration (reset timeout on activity)
+
+**Integration Points:**
+- Middleware should check both credit balance and session validity
+- Session timeout should not affect credit deduction logic
+- May need to coordinate with authentication/authorization system
+
+**Implementation Notes:**
+- You are free to organize files and structure as you see fit
+- Consider whether to integrate session checking into existing middleware or create separate middleware
+- Ensure session validation doesn't impact the 20ms latency requirement
+
+**Note:** These interconnected components should be designed to work together seamlessly. Consider how they interact:
+- Credit refills should be audited
+- Session timeouts should not interfere with credit operations
+- Audit system should be performant and non-blocking
+
+---
+
+## 6. Success Criteria
 
 Your implementation is complete when:
-1. All tests pass (`dotnet test` shows 8/8 passing)
+1. All tests pass (`dotnet test` shows all tests passing)
 2. `CreditService.TryDeductCreditAsync()` is fully implemented
 3. Middleware is registered and working
 4. API blocks users with 0 credits (returns 402)
 5. Concurrency test passes: 10 requests with 1 credit = 1 success, 9 failures
 6. Response time is < 20ms (caching prevents 100ms database calls)
+7. Credit refill system is implemented and tested
+8. Transaction audit system logs all credit operations
+9. Authentication timeout is implemented and integrated
 
-## 6. Testing
+## 7. Testing
 
 ### Run Tests
 ```bash
@@ -116,13 +193,41 @@ dotnet test
 
 ### Test the API
 1. Start the API: `cd RivaAssessment && dotnet run`
-2. Open Swagger: http://localhost:5000/swagger
-3. Test with `X-User-Id` header:
-   - `user1` (has credits) - should succeed
-   - `user3` (no credits) - should return 402
+2. Test with `X-User-Id` header using curl (replace `/api/your-endpoint` with an actual endpoint):
+   ```bash
+   # Test with a user who has credits
+   curl -H "X-User-Id: user1" http://localhost:5000/api/your-endpoint
+   
+   # Test with a user who has no credits (should return 402)
+   curl -H "X-User-Id: user3" http://localhost:5000/api/your-endpoint
+   ```
 
 ### Test Users
 - `user1`: 10 credits
 - `user2`: 5 credits
 - `user3`: 0 credits (should always return 402)
 - `user4`: 100 credits
+
+## 8. Implementation Approach
+
+### Core Requirements (Must Implement)
+You must implement the following core components:
+- **CreditService**: Implement `TryDeductCreditAsync()` method in `RivaAssessment/Services/CreditService.cs`
+- **CreditEnforcementMiddleware**: Implement the middleware in `RivaAssessment/Middleware/CreditEnforcementMiddleware.cs`
+- **Tests**: Write unit tests from scratch in `RivaAssessment.Tests/CreditServiceTests.cs` and `RivaAssessment.Tests/CreditEnforcementMiddlewareTests.cs`
+- **Program.cs**: Register services and middleware
+
+### Interconnected Components (Must Implement)
+You must also implement:
+- Credit refill system
+- Transaction audit system
+- Authentication timeout mechanism
+
+### File Organization
+**You are free to organize your code structure as you see fit.** This is part of the assessment - we want to see how you structure a solution. Consider:
+- Separation of concerns (controllers, services, repositories, models)
+- Test organization
+- Dependency injection setup
+- Code organization patterns that make sense for your implementation
+
+The only files you must modify are the existing starter files mentioned in the core requirements. For all new functionality, create files and organize them in a way that demonstrates good software architecture practices.

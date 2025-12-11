@@ -58,17 +58,17 @@ The API requires the `X-User-Id` header to identify which user is making the req
 
 ### Testing with curl (Recommended)
 
-The easiest way to test the API is using `curl` from the command line:
+The easiest way to test the API is using `curl` from the command line. You'll need to create your own API endpoints to test. Once you have endpoints set up, test them like this:
 
 ```bash
 # Test with a user who has credits (should return 200 OK)
-curl -H "X-User-Id: user1" http://localhost:5000/api/weatherforecast
+curl -H "X-User-Id: user1" http://localhost:5000/api/your-endpoint
 
 # Test with a user who has no credits (should return 402 Payment Required)
-curl -H "X-User-Id: user3" http://localhost:5000/api/weatherforecast
+curl -H "X-User-Id: user3" http://localhost:5000/api/your-endpoint
 
 # Test with another user who has credits
-curl -H "X-User-Id: user2" http://localhost:5000/api/weatherforecast
+curl -H "X-User-Id: user2" http://localhost:5000/api/your-endpoint
 ```
 
 ### Testing with Browser Developer Tools
@@ -80,7 +80,7 @@ You can also test using your browser's developer tools:
 3. Navigate to http://localhost:5000/swagger to view the API documentation
 4. To make a request with headers, use the **Console** tab and run:
    ```javascript
-   fetch('http://localhost:5000/api/weatherforecast', {
+   fetch('http://localhost:5000/api/your-endpoint', {
      headers: { 'X-User-Id': 'user1' }
    }).then(r => r.json()).then(console.log)
    ```
@@ -121,3 +121,4 @@ lsof -ti:5000 | xargs kill
 ## Stopping the Server
 
 Press `Ctrl+C` in the terminal where the API is running.
+

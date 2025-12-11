@@ -22,5 +22,5 @@ Please answer the following questions about your use of AI tools during this ass
 
 ---
 
-For setup instructions, see [SETUP.md](SETUP.md).  
-For assignment details, see [ASSIGNMENT.md](ASSIGNMENT.md).
+For setup instructions, see SETUP.md
+For assignment details, see ASSIGNMENT.md

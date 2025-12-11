@@ -27,30 +27,12 @@ public class CreditEnforcementMiddleware
 
     public async Task InvokeAsync(HttpContext context, ICreditService creditService)
     {
-        // TODO: Extract user ID from request (e.g., from headers, claims, etc.)
-        // For now, using a simple header approach
-        var userId = context.Request.Headers["X-User-Id"].FirstOrDefault() ?? "user1";
-
-        // TODO: Implement credit check and deduction
-        // This should:
-        // 1. Check if user has credits (using caching to avoid 100ms latency)
-        // 2. Atomically deduct 1 credit
-        // 3. Handle race conditions (only 1 of 10 concurrent requests should succeed if user has 1 credit)
-        // 4. Return 402 if no credits available
-
-        // Placeholder - replace with actual implementation
-        var hasCredits = await creditService.TryDeductCreditAsync(userId);
+        // TODO: Implement the middleware
+        // - Extract user ID from X-User-Id header
+        // - Call creditService.TryDeductCreditAsync() to deduct credit
+        // - Return 402 if no credits available
+        // - Allow request to proceed if credit deducted
         
-        if (!hasCredits)
-        {
-            context.Response.StatusCode = 402; // Payment Required
-            await context.Response.WriteAsync("Payment Required - Insufficient credits");
-            return;
-        }
-
-        // User has credits, proceed with the request
         await _next(context);
     }
 }
-
-
