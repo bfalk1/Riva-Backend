@@ -33,11 +33,11 @@ You are a Senior Backend Engineer at Riva. We are pivoting to a "Pre-Paid Credit
 * The provided `LegacyBillingRepository` has a simulated latency of **100ms**.
 * You **cannot** call this repository directly on every request. Implement a caching strategy (e.g., "Token Bucket" or "Cache-Aside") to satisfy the speed requirement while ensuring eventual consistency.
 
-### D. Testing (Critical)
-* You must implement and verify your logic with **Unit Tests**.
-* **Test Case 1:** Write a test `TryDeductCredit_ReturnsFalse_WhenUserHasNoCredits` - Verify that the service returns `false` when a user has 0 credits.
-* **Test Case 2 (The Stress Test):** Write a test `ConcurrentDeductions_WithOneCredit_OnlyOneSucceeds` - Verify that 10 concurrent requests for a user with 1 credit results in exactly **1 Success** and **9 Failures**.
-* Test class structures are provided in `RivaAssessment.Tests/`, but you must write all test methods from scratch.
+### D. Testing (Critical - You Must Implement Tests)
+* **You are required to implement comprehensive unit tests** to verify your logic.
+* **Test Case 1:** You must implement a test `TryDeductCredit_ReturnsFalse_WhenUserHasNoCredits` - Verify that the service returns `false` when a user has 0 credits.
+* **Test Case 2 (The Stress Test):** You must implement a test `ConcurrentDeductions_WithOneCredit_OnlyOneSucceeds` - Verify that 10 concurrent requests for a user with 1 credit results in exactly **1 Success** and **9 Failures**.
+* Test class structures with basic setup are provided in `RivaAssessment.Tests/`, but **you must implement all test methods yourself**.
 
 ---
 
@@ -50,7 +50,7 @@ The solution is already set up with:
 - **LegacyBillingRepository**: Provided repository that simulates slow database (100ms latency)
 - **CreditService**: Service class that needs implementation
 - **CreditEnforcementMiddleware**: Middleware class that needs implementation
-- **Test files**: Test class structures provided, test methods need to be written from scratch
+- **Test files**: Test class structures provided - **you must implement all test methods**
 
 ### Initial Setup
 See [SETUP.md](SETUP.md) for detailed setup instructions. Quick start:
@@ -62,7 +62,7 @@ dotnet restore
 # Build the solution
 dotnet build
 
-# Run tests (no tests will run initially - you need to write them)
+# Run tests (you must implement tests first - no tests will run until you write them)
 dotnet test
 ```
 
@@ -88,14 +88,14 @@ dotnet test
   - Register in `Program.cs`
 
 ### Tests (`RivaAssessment.Tests/`)
-- **Status:** Test class structures provided, test methods need to be written
-- **Task:** Write comprehensive unit tests from scratch
+- **Status:** Test class structures with basic setup provided - **you must implement all test methods**
+- **Task:** **Implement comprehensive unit tests** for all components
 - **Requirements:**
-  - Write `TryDeductCredit_ReturnsFalse_WhenUserHasNoCredits` test for CreditService
-  - Write `ConcurrentDeductions_WithOneCredit_OnlyOneSucceeds` test for CreditService
-  - Write tests for CreditEnforcementMiddleware (blocking users with no credits, allowing requests with credits, etc.)
-  - Ensure all tests pass
-  - You are free to organize and structure tests as you see fit
+  - **You must implement** `TryDeductCredit_ReturnsFalse_WhenUserHasNoCredits` test for CreditService
+  - **You must implement** `ConcurrentDeductions_WithOneCredit_OnlyOneSucceeds` test for CreditService
+  - **You must implement** tests for CreditEnforcementMiddleware (e.g., blocking users with no credits, allowing requests with credits, concurrent request handling)
+  - **You must ensure** all tests pass
+  - You are free to organize and structure tests as you see fit, but tests are mandatory
 
 ---
 
@@ -121,7 +121,7 @@ The following components are interconnected with the credit enforcement system a
 **Implementation Notes:**
 - You are free to organize files and structure as you see fit
 - Consider how this integrates with the existing `CreditService` and `ICreditService`
-- Add appropriate tests for the refill functionality
+- **You must implement tests** for the refill functionality
 
 ### B. Backend Transaction Audit System
 **TODO:** Implement a transaction audit system that logs all credit deductions and refills.
@@ -174,22 +174,26 @@ The following components are interconnected with the credit enforcement system a
 ## 6. Success Criteria
 
 Your implementation is complete when:
-1. All tests pass (`dotnet test` shows all tests passing)
+1. **All tests are implemented and passing** (`dotnet test` shows all tests passing)
 2. `CreditService.TryDeductCreditAsync()` is fully implemented
 3. Middleware is registered and working
 4. API blocks users with 0 credits (returns 402)
 5. Concurrency test passes: 10 requests with 1 credit = 1 success, 9 failures
 6. Response time is < 20ms (caching prevents 100ms database calls)
-7. Credit refill system is implemented and tested
-8. Transaction audit system logs all credit operations
-9. Authentication timeout is implemented and integrated
+7. Credit refill system is implemented **with tests**
+8. Transaction audit system logs all credit operations **with tests**
+9. Authentication timeout is implemented and integrated **with tests**
 
 ## 7. Testing
+
+**Important:** Testing is a mandatory part of this assessment. You must implement unit tests for all components.
 
 ### Run Tests
 ```bash
 dotnet test
 ```
+
+**Note:** You must implement tests before running `dotnet test` - no tests will execute until you write them.
 
 ### Test the API
 1. Start the API: `cd RivaAssessment && dotnet run`
@@ -214,7 +218,7 @@ dotnet test
 You must implement the following core components:
 - **CreditService**: Implement `TryDeductCreditAsync()` method in `RivaAssessment/Services/CreditService.cs`
 - **CreditEnforcementMiddleware**: Implement the middleware in `RivaAssessment/Middleware/CreditEnforcementMiddleware.cs`
-- **Tests**: Write unit tests from scratch in `RivaAssessment.Tests/CreditServiceTests.cs` and `RivaAssessment.Tests/CreditEnforcementMiddlewareTests.cs`
+- **Tests**: **You must implement** unit tests in `RivaAssessment.Tests/CreditServiceTests.cs` and `RivaAssessment.Tests/CreditEnforcementMiddlewareTests.cs`
 - **Program.cs**: Register services and middleware
 
 ### Interconnected Components (Must Implement)
